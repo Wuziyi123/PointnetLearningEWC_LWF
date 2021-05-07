@@ -21,3 +21,4 @@ from core.lwf_loss import KnowledgeDistillationLoss
 from core.model import PointNetClassifier
 from core.parse_args import parse_args
 from core.train_lwf_model import train_model_lwf
+from core.train_ewc_model import train_model_ewc

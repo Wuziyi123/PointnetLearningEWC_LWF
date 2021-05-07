@@ -7,7 +7,7 @@ def parse_args():
         '-e',
         '--epochs',
         type=int,
-        default=5,
+        default=20,
         help='Maximal number of epochs to train network',
         dest='max_epochs'
     )
@@ -15,7 +15,7 @@ def parse_args():
         '-bn',
         '--batch_norm',
         type=bool,
-        default=True,
+        default=False,
         help='Whether to use batch_norm or not',
         dest='batch_norm'
     )
@@ -47,7 +47,7 @@ def parse_args():
         '-a',
         '--alpha',
         type=float,
-        default=2,
+        default=2.9,
         help='Alpha parameter for regularization',
         dest='alpha'
     )
@@ -55,7 +55,7 @@ def parse_args():
         '-z',
         '--z_size',
         type=int,
-        default=1024,
+        default=50,
         help='Size of final transformation vector',
         dest='z_size'
     )

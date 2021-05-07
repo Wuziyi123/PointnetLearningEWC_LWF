@@ -71,7 +71,7 @@ class PointCloudDataset(Dataset):
             if self.transform:
                 X = self.transform(X).squeeze()
 
-            return X.T, y
+            return X.T.float(), y
 
     def __getitem__(self, idx):
         return self.__get_item(idx)

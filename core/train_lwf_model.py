@@ -13,10 +13,10 @@ from torch.utils.data import DataLoader
 DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
-def setup_datasets(path, tasks, sampling, kind, transforms):
+def setup_datasets(tasks, sampling, kind, transforms):
     datasets = {}
     for task, classes in tasks.items():
-        dataset = ModelNet10(classes=classes, split=kind, transform=transforms())
+        dataset = ModelNet10(sampling=sampling, classes=classes, split=kind, transform=transforms())
         datasets[task] = dataset
     return datasets
 
@@ -37,8 +37,8 @@ def train_model_lwf(
     log_msg(f'Tasks: {tasks}')
 
     # setup val dataset
-    train_datasets = setup_datasets(data_path, tasks, sampling, 'train', default_transforms)
-    val_datasets = setup_datasets(data_path, tasks, sampling, 'test', test_transforms)
+    train_datasets = setup_datasets(tasks, sampling, 'train', default_transforms)
+    val_datasets = setup_datasets(tasks, sampling, 'test', test_transforms)
 
     # setup base model
     model = PointNetClassifier(sampling, z_size, batch_norm)
@@ -162,7 +162,6 @@ def train_model_first_task(
             x = x.to(DEVICE)
             y = y.to(DEVICE)
 
-            print(x.shape)
             pred = model(x)
             loss = criterion(pred[task], y.long())
             loss_epoch += loss.item()

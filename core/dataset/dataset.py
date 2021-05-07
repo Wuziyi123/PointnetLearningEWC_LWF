@@ -64,7 +64,7 @@ class LWFDataset(Dataset):
             for i in range(len(dataset)):
                 output = dict()
                 x, _ = dataset[i]
-                pred = model(x.unsqueeze(0).transpose(1, 2).to(device))
+                pred = model(x.unsqueeze(0).to(device))
                 for key in prev_tasks:
                     output[key] = pred[key].squeeze(0).to(cpu)
                 self._prev_tasks_output.append(output)

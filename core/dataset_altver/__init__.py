@@ -13,11 +13,13 @@ __all__ = ['ShapeNet', 'ModelNet10', 'ModelNet40', 'ModelNet40_Auto', 'ModelNet4
 
 class PointCloudDataset(Dataset):
     def __init__(self,
+                 sampling,
                  root_dir: str,
                  download_url: Union[str, List[str]],
                  classes: List[str] = None,
                  transform=ToTensor,
                  split: str = 'train'):
+        self.sampling = sampling
         self.root_dir = root_dir
         self.transform = transform
         self.split = split.lower()
@@ -31,7 +33,7 @@ class PointCloudDataset(Dataset):
         self._maybe_download_data()
 
         dataset = self.load_dataset()
-        self.category_to_id = self.get_category_to_id_mapping(dataset)
+        self.category_to_id = self.get_category_to_id_mapping()
         self.id_to_category = {v: k for k, v in self.category_to_id.items()}
         self.X, self.y = self.get_data(dataset)
 
@@ -66,7 +68,7 @@ class PointCloudDataset(Dataset):
                 X, y = self.X[idx].astype(np.float32), self.y[idx].astype(np.float32)
             else:
                 X, y = self.X_c[idx - len(self.X)].astype(np.float32), self.y_c[idx - len(self.X)].astype(np.float32)
-                X = np.concatenate((X, X[np.random.choice(len(X), 2048 - len(X))]))
+                X = np.concatenate((X, X[np.random.choice(len(X), self.sampling - len(X))]))
 
             if self.transform:
                 X = self.transform(X).squeeze()
@@ -76,7 +78,7 @@ class PointCloudDataset(Dataset):
     def __getitem__(self, idx):
         return self.__get_item(idx)
 
-    def get_category_to_id_mapping(self, dataset: np.lib.npyio.NpzFile) -> Dict[str, int]:
+    def get_category_to_id_mapping(self) -> Dict[str, int]:
         return self._map
 
     def load_dataset(self) -> Union[np.lib.npyio.NpzFile, h5py.Group]:
@@ -110,7 +112,7 @@ class PointCloudDataset(Dataset):
             X.extend(data)
             y.extend(len(data) * [self.category_to_id[class_]])
 
-        X, y = np.array(X, dtype=np.float32), np.reshape(y, (-1, 1))
+        X, y = np.array(X, dtype=np.float32), y
         return X, y
 
     def _maybe_download_data(self):
@@ -143,11 +145,13 @@ class PointCloudDataset(Dataset):
 
 class ShapeNet(PointCloudDataset):
     def __init__(self,
+                 sampling,
                  root_dir: str = '/home/datasets/shapenet',
                  classes: List[str] = None,
                  transform=None,
                  split: str = 'train'):
         super().__init__(
+            sampling=sampling,
             root_dir=root_dir,
             download_url='https://www.dropbox.com/s/j7u1ok8q8skgivc/shapenet.npz?dl=1',
             classes=classes,
@@ -159,6 +163,7 @@ class ShapeNet(PointCloudDataset):
 
 class ModelNet(PointCloudDataset):
     def __init__(self,
+                 sampling,
                  root_dir: str,
                  download_url: Union[str, List[str]],
                  classes: List[str] = None,
@@ -168,6 +173,7 @@ class ModelNet(PointCloudDataset):
         assert split.lower() != 'valid', 'Currently only `train` and `test` are supported for MN10'
 
         super().__init__(
+            sampling=sampling,
             root_dir=root_dir,
             download_url=download_url,
             classes=classes,
@@ -180,20 +186,22 @@ class ModelNet(PointCloudDataset):
         X, y = [], []
         for class_ in chosen_classes:
             data = dataset[class_]
-            to_add = np.asarray([pc[np.random.choice(len(pc), 2048, replace=len(pc) < 2048)] for pc in data])
+            to_add = np.asarray([pc[np.random.choice(len(pc), self.sampling, replace=len(pc) < self.sampling)] for pc in data])
             X.extend(to_add)
             y.extend(len(to_add) * [self.category_to_id[class_]])
 
-        return np.array(X), np.reshape(y, (-1, 1))
+        return np.array(X), np.array(y)
 
 
 class ModelNet10(ModelNet):
     def __init__(self,
+                 sampling,
                  root_dir: str = '/home/datasets/modelnet10',
                  classes: List[str] = None,
                  transform=None,
                  split: str = 'train'):
         super().__init__(
+            sampling=sampling,
             root_dir=root_dir,
             download_url='https://www.dropbox.com/s/zwx5zejgzewxm9p/modelnet10_15k.hdf5?dl=1',
             classes=classes,
@@ -206,11 +214,13 @@ class ModelNet10(ModelNet):
 
 class ModelNet40(ModelNet):
     def __init__(self,
+                 sampling,
                  root_dir: str = '/data',
                  classes: List[str] = None,
                  transform=None,
                  split: str = 'train'):
         super().__init__(
+            sampling=sampling,
             root_dir=root_dir,
             download_url='https://www.dropbox.com/s/8aniolgxsjzul8g/modelnet40_15k.hdf5?dl=1',
             classes=classes,
@@ -220,11 +230,13 @@ class ModelNet40(ModelNet):
 
 class ModelNet40_Auto(ModelNet):
     def __init__(self,
+                 sampling,
                  root_dir: str = '/data',
                  classes: List[str] = None,
                  transform=None,
                  split: str = 'train'):
         super().__init__(
+            sampling=sampling,
             root_dir=root_dir,
             download_url='https://www.dropbox.com/s/80qikmb79bi1f9e/modelnet40_auto_15k.hdf5?dl=1',
             classes=classes,
@@ -234,11 +246,13 @@ class ModelNet40_Auto(ModelNet):
 
 class ModelNet40_Manual(ModelNet):
     def __init__(self,
+                 sampling,
                  root_dir: str = '/data',
                  classes: List[str] = None,
                  transform=None,
                  split: str = 'train'):
         super().__init__(
+            sampling=sampling,
             root_dir=root_dir,
             download_url='https://www.dropbox.com/s/oqpfgx3o7lw1qmz/modelnet40_manual_15k.hdf5?dl=1',
             classes=classes,

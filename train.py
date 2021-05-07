@@ -1,6 +1,7 @@
 from core import train_model_lwf, parse_args
+from core.dataset_altver import ModelNet10
 
-PATH = r'C:\Users\konra\Desktop\CloudOfPointsLWE\HModelNet10'
+
 TASKS = {
     't1': ['chair', 'sofa'],
     't2': ['bed', 'monitor'],
@@ -13,7 +14,7 @@ TASKS = {
 def main():
     args = parse_args()
     train_model_lwf(
-        PATH,
+        ModelNet10,
         TASKS,
         args.sampling,
         args.z_size,

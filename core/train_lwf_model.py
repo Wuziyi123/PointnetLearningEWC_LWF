@@ -6,23 +6,22 @@ import numpy as np
 
 from core import PointNetClassifier, EarlyStopper, train_path, KnowledgeDistillationLoss
 from core.raport_generator import log_msg, RaportGenerator
-from core.dataset import Data, LWFDataset, test_transforms
-from core.dataset_altver import ModelNet10
+from core.dataset import Data, LWFDataset, test_transforms, default_transforms
 from torch.utils.data import DataLoader
 
 DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
-def setup_datasets(path, tasks, sampling, kind):
+def setup_datasets(dataset, tasks, sampling, kind, transforms):
     datasets = {}
     for task, classes in tasks.items():
-        dataset = Data(path, classes, sampling, kind=kind, transforms=test_transforms())
-        datasets[task] = dataset
+        data = dataset(sampling=sampling, classes=classes, split=kind, transform=transforms())
+        datasets[task] = data
     return datasets
 
 
 def train_model_lwf(
-        data_path,
+        dataset,
         tasks,
         sampling,
         z_size,
@@ -37,8 +36,8 @@ def train_model_lwf(
     log_msg(f'Tasks: {tasks}')
 
     # setup val dataset
-    train_datasets = setup_datasets(data_path, tasks, sampling, 'train')
-    val_datasets = setup_datasets(data_path, tasks, sampling, 'test')
+    train_datasets = setup_datasets(dataset, tasks, sampling, 'train', default_transforms)
+    val_datasets = setup_datasets(dataset, tasks, sampling, 'test', test_transforms)
 
     # setup base model
     model = PointNetClassifier(sampling, z_size, batch_norm)
@@ -117,7 +116,7 @@ def accuracy_score(task, model, loader):
     model.set_active_keys([task])
     with torch.no_grad():
         for x, y in loader:
-            x = x.transpose(1, 2).to(DEVICE)
+            x = x.to(DEVICE)
             y = y.to(DEVICE)
 
             pred = model(x)
@@ -159,7 +158,7 @@ def train_model_first_task(
         loss_epoch = 0
         model.train()
         for x, y in train_loader:
-            x = x.transpose(1, 2).to(DEVICE)
+            x = x.to(DEVICE)
             y = y.to(DEVICE)
 
             pred = model(x)
@@ -237,7 +236,7 @@ def train_new_task(
         model.train()
         model.set_active_keys(prev_tasks + [new_task])
         for (x, y), data in train_loader:
-            x = x.transpose(1, 2).to(DEVICE)
+            x = x.to(DEVICE)
             y = y.to(DEVICE)
             pred = model(x)
             loss = criterion(pred[new_task], y.long())

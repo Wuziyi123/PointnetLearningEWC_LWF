@@ -7,22 +7,21 @@ import numpy as np
 from core import PointNetClassifier, EarlyStopper, train_path, KnowledgeDistillationLoss
 from core.raport_generator import log_msg, RaportGenerator
 from core.dataset import Data, LWFDataset, test_transforms, default_transforms
-from core.dataset_altver import ModelNet10
 from torch.utils.data import DataLoader
 
 DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
-def setup_datasets(tasks, sampling, kind, transforms):
+def setup_datasets(dataset, tasks, sampling, kind, transforms):
     datasets = {}
     for task, classes in tasks.items():
-        dataset = ModelNet10(sampling=sampling, classes=classes, split=kind, transform=transforms())
-        datasets[task] = dataset
+        data = dataset(sampling=sampling, classes=classes, split=kind, transform=transforms())
+        datasets[task] = data
     return datasets
 
 
 def train_model_lwf(
-        data_path,
+        dataset,
         tasks,
         sampling,
         z_size,
@@ -37,8 +36,8 @@ def train_model_lwf(
     log_msg(f'Tasks: {tasks}')
 
     # setup val dataset
-    train_datasets = setup_datasets(tasks, sampling, 'train', default_transforms)
-    val_datasets = setup_datasets(tasks, sampling, 'test', test_transforms)
+    train_datasets = setup_datasets(dataset, tasks, sampling, 'train', default_transforms)
+    val_datasets = setup_datasets(dataset, tasks, sampling, 'test', test_transforms)
 
     # setup base model
     model = PointNetClassifier(sampling, z_size, batch_norm)

@@ -28,7 +28,6 @@ class PointCloudDataset(Dataset):
         self._map = {}
         for i, c in enumerate(self.classes):
             self._map[c] = i
-        print(self._map, self.classes)
 
         self._maybe_download_data()
 

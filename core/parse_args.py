@@ -7,7 +7,7 @@ def parse_args():
         '-e',
         '--epochs',
         type=int,
-        default=20,
+        default=2,
         help='Maximal number of epochs to train network',
         dest='max_epochs'
     )
@@ -47,7 +47,7 @@ def parse_args():
         '-a',
         '--alpha',
         type=float,
-        default=2.9,
+        default=0.5,
         help='Alpha parameter for regularization',
         dest='alpha'
     )

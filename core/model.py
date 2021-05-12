@@ -54,7 +54,7 @@ class PointNetClassifier(nn.Module):
         super().__init__()
         self._pn = PointNet(sampling, z_size, batch_norm)
         self.sampling = sampling
-        self._keys_active = []
+        self._keys_active = ['t1', 't2', 't3', 't4', 't5']
 
         if batch_norm:
             self._dense = nn.Sequential(

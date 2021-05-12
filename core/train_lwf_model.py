@@ -242,7 +242,7 @@ def train_new_task(
 
             kd_loss = 0
             for task in prev_tasks:
-                kd_loss += lwf_criterion(nn.functional.softmax(pred[task], dim=1), data[task].to(DEVICE).float())
+                kd_loss += lwf_criterion(pred[task], data[task].to(DEVICE).float())
             loss += kd_loss * alpha / len(prev_tasks)
             loss_epoch += loss.item()
             loss.backward()
@@ -284,6 +284,9 @@ def validate_model_all_tasks(task, save_path, best_idx, tasks, model, train_data
     test_accuracy = {}
     best_model = load_model_best_path(task, save_path, best_idx, model)
     for task in tasks.keys():
+        print(model._final)
+        print(model._keys_active)
+        print(f'TASK: {task}')
         train_accuracy[task] = accuracy_score(task, best_model, DataLoader(train_datasets[task]))
         test_accuracy[task] = accuracy_score(task, best_model, DataLoader(val_datasets[task]))
     return train_accuracy, test_accuracy

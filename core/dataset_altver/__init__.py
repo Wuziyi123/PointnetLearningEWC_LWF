@@ -144,7 +144,7 @@ class PointCloudDataset(Dataset):
 
 class ShapeNet(PointCloudDataset):
     def __init__(self,
-                 sampling,
+                 sampling: int,
                  root_dir: str = '/home/datasets/shapenet',
                  classes: List[str] = None,
                  transform=None,
@@ -162,7 +162,7 @@ class ShapeNet(PointCloudDataset):
 
 class ModelNet(PointCloudDataset):
     def __init__(self,
-                 sampling,
+                 sampling: int,
                  root_dir: str,
                  download_url: Union[str, List[str]],
                  classes: List[str] = None,
@@ -194,7 +194,7 @@ class ModelNet(PointCloudDataset):
 
 class ModelNet10(ModelNet):
     def __init__(self,
-                 sampling,
+                 sampling: int,
                  root_dir: str = '/home/datasets/modelnet10',
                  classes: List[str] = None,
                  transform=None,
@@ -213,7 +213,7 @@ class ModelNet10(ModelNet):
 
 class ModelNet40(ModelNet):
     def __init__(self,
-                 sampling,
+                 sampling: int,
                  root_dir: str = '/data',
                  classes: List[str] = None,
                  transform=None,
@@ -229,7 +229,7 @@ class ModelNet40(ModelNet):
 
 class ModelNet40_Auto(ModelNet):
     def __init__(self,
-                 sampling,
+                 sampling: int,
                  root_dir: str = '/data',
                  classes: List[str] = None,
                  transform=None,
@@ -245,7 +245,7 @@ class ModelNet40_Auto(ModelNet):
 
 class ModelNet40_Manual(ModelNet):
     def __init__(self,
-                 sampling,
+                 sampling: int,
                  root_dir: str = '/data',
                  classes: List[str] = None,
                  transform=None,
